@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EduGenie — Learning Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <p class="eyebrow">AI LEARNING ASSISTANT</p>
+      <h1>EduGenie</h1>
+      <p>Ask questions, simplify concepts, create quizzes, summarize passages, or build a learning path.</p>
+    </header>
+
+    <section class="card">
+      <form id="edu-form">
+        <label for="task">Choose a task</label>
+        <select id="task" name="task">
+          <option value="qa">Ask a Question</option>
+          <option value="explain">Explain a Concept</option>
+          <option value="quiz">Generate a Quiz</option>
+          <option value="summarize">Summarize Text</option>
+          <option value="learn">Learning Path</option>
+        </select>
+
+        <div id="options" class="options hidden">
+          <label for="level">Learner level</label>
+          <select id="level">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+          <label for="weeks">Weeks</label>
+          <input id="weeks" type="number" min="1" max="52" value="6">
+        </div>
+
+        <label for="input-text">Your input</label>
+        <textarea id="input-text" rows="10" maxlength="30000" placeholder="e.g. Explain the Pythagorean theorem for a beginner."></textarea>
+        <div class="meta"><span id="counter">0 / 30,000</span></div>
+        <button id="submit-btn" type="submit">Generate</button>
+      </form>
+    </section>
+
+    <section id="status" class="status" aria-live="polite"></section>
+    <section id="result" class="card result hidden"></section>
+
+    <footer>
+      <span>EduGenie</span>
+      <a href="/docs" target="_blank" rel="noreferrer">API docs</a>
+      <a href="/health" target="_blank" rel="noreferrer">Health</a>
+    </footer>
+  </main>
+  <script src="{{ url_for('static', path='app.js') }}"></script>
+</body>
+</html>
