@@ -8,7 +8,9 @@ dependencies = [
     "fastapi",
     "uvicorn",
     "jinja2",
-    "python-dotenv"
+    "python-dotenv",
+    "pydantic",
+    "google-genai"
 ]
 
 [tool.pytest.ini_options]
