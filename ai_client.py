@@ -1,3 +1,4 @@
+import time
 from functools import lru_cache
 
 from config import get_settings
@@ -18,7 +19,9 @@ def get_gemini_client():
             "GEMINI_API_KEY is not configured."
         )
 
-    return genai.Client(api_key=settings.gemini_api_key)
+    return genai.Client(
+        api_key=settings.gemini_api_key
+    )
 
 
 def generate_text(
@@ -40,15 +43,53 @@ def generate_text(
         response_mime_type=response_mime_type,
     )
 
-    response = client.models.generate_content(
-        model=settings.gemini_model,
-        contents=prompt,
-        config=config,
-    )
+    max_attempts = 4
 
-    text = (response.text or "").strip()
+    for attempt in range(max_attempts):
 
-    if not text:
-        raise RuntimeError("Gemini returned an empty response.")
+        try:
 
-    return text
+            response = client.models.generate_content(
+                model=settings.gemini_model,
+                contents=prompt,
+                config=config,
+            )
+
+            text = (response.text or "").strip()
+
+            if not text:
+                raise RuntimeError(
+                    "Gemini returned an empty response."
+                )
+
+            return text
+
+        except Exception as exc:
+
+            error_text = str(exc)
+
+            retryable = (
+                "503" in error_text
+                or "UNAVAILABLE" in error_text
+                or "high demand" in error_text.lower()
+                or "temporarily" in error_text.lower()
+            )
+
+            # If it is not a temporary error,
+            # stop immediately.
+            if not retryable:
+                raise
+
+            # Last attempt failed
+            if attempt == max_attempts - 1:
+                raise RuntimeError(
+                    "Gemini is temporarily overloaded. "
+                    "Please try again in a few seconds."
+                ) from exc
+
+            # 1s → 2s → 4s
+            delay = 2 ** attempt
+
+            time.sleep(delay)
+
+    raise RuntimeError("Gemini request failed.")
