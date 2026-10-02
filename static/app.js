@@ -28,19 +28,13 @@ function updateUI() {
 }
 
 
-task.addEventListener(
-  'change',
-  updateUI
-);
+task.addEventListener('change', updateUI);
 
 
-text.addEventListener(
-  'input',
-  () => {
-    counter.textContent =
-      `${text.value.length.toLocaleString()} / 30,000`;
-  }
-);
+text.addEventListener('input', () => {
+  counter.textContent =
+    `${text.value.length.toLocaleString()} / 30,000`;
+});
 
 
 updateUI();
@@ -57,6 +51,77 @@ function escapeHtml(value) {
       '"': '&quot;'
     }[c])
   );
+}
+
+
+/* Convert AI markdown-like response to HTML */
+function renderMarkdown(value) {
+  let html = escapeHtml(value);
+
+  /* Headings */
+  html = html.replace(
+    /^### (.*)$/gm,
+    '<h3>$1</h3>'
+  );
+
+  html = html.replace(
+    /^## (.*)$/gm,
+    '<h2>$1</h2>'
+  );
+
+  html = html.replace(
+    /^# (.*)$/gm,
+    '<h1>$1</h1>'
+  );
+
+  /* Bold */
+  html = html.replace(
+    /\*\*(.*?)\*\*/g,
+    '<strong>$1</strong>'
+  );
+
+  /* Italic */
+  html = html.replace(
+    /\*(.*?)\*/g,
+    '<em>$1</em>'
+  );
+
+  /* Bullet points */
+  html = html.replace(
+    /^\s*[-•]\s+(.*)$/gm,
+    '<li>$1</li>'
+  );
+
+  html = html.replace(
+    /(<li>.*<\/li>\n?)+/g,
+    '<ul>$&</ul>'
+  );
+
+  /* Numbered lists */
+  html = html.replace(
+    /^\s*\d+\.\s+(.*)$/gm,
+    '<li>$1</li>'
+  );
+
+  /* Formula blocks */
+  html = html.replace(
+    /\$\$(.*?)\$\$/gs,
+    '<div class="formula">$1</div>'
+  );
+
+  /* Inline code */
+  html = html.replace(
+    /`([^`]+)`/g,
+    '<code>$1</code>'
+  );
+
+  /* New lines */
+  html = html.replace(
+    /\n/g,
+    '<br>'
+  );
+
+  return html;
 }
 
 
@@ -258,8 +323,9 @@ form.addEventListener(
 
       } else {
 
-        result.textContent =
-          data.result;
+        /* Format AI response */
+        result.innerHTML =
+          renderMarkdown(data.result);
       }
 
 
