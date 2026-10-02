@@ -51,4 +51,4 @@ def generate_text(
     if not text:
         raise RuntimeError("Gemini returned an empty response.")
 
-    return text
+    return tex
